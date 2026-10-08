@@ -1,0 +1,1096 @@
+================================================================================
+ADDRESS PAGE — FUNCTIONAL TEST CASE GENERATION PROMPT (v2)
+================================================================================
+
+WHAT CHANGED FROM THE PREVIOUS ADDRESS ROUND (prompt_Addres_page.md, Round 4)
+
+The previous address round generated only Positive and Negative cases. This version brings the
+Address page up to the same standard as cart_prompt_V2 (Cart), payment_prompt_V2 (Payment),
+prompt_search_v2 (Search Results) and prompt_1_v5 (Homepage / Sign In / Sign Up): seventeen
+additional techniques are now in scope — Equivalence Class, Boundary Value, Decision Table,
+State Transition, Data Integrity, End-to-End, Concurrency, Recovery, Security, Compliance,
+Analytics, Usability, Compatibility, Localisation, SEO, Interface Contract and Accessibility.
+
+Adding them required six edits, not just an addition:
+
+  1. The "Scenario type" column now holds a technique from a defined list (Section 6) rather
+     than "positive or negative".
+  2. The previous round's Rule 11 ban on security and accessibility testing is partially
+     lifted: CLIENT-SIDE security and accessibility are now IN scope; performance, API,
+     database, and all server-side security stay out. On this page the distinction matters more
+     than on any other, because this is the ONLY page in the flow that collects personal data —
+     a name, a mobile number and a full postal address — see Section 6 techniques 11 and 12.
+  3. The previous round's "Don't create — Boundary scenarios" exclusion is lifted, but ONLY for
+     limits that are explicitly stated or source-verifiable. The specific prohibitions in the
+     old Constraint 2 and the old "Don't create" list — no invented maximum-length rule for
+     Name/Address/Locality, no invented minimum or maximum digit count for Mobile Number or Pin
+     Code — REMAIN IN FORCE and are restated in technique 4. Expanding the technique list is
+     not licence to invent a 10-digit mobile rule or a 6-digit pin rule the application does
+     not implement.
+  4. Rule 12's "functional UI test cases only" is widened to admit client-side security,
+     storage-contract and accessibility checks.
+  5. BR10-BR17 are added, because eight of the new techniques had no Business Rule to map to.
+     NOTE THE NUMBERING: this page's register already uses BR1-BR9, so the new rules start at
+     BR10. That MATCHES cart_prompt_V2's and payment_prompt_V2's BR10-BR17 exactly, because all
+     three checkout pages used BR1-BR9 — the three registers are directly cross-referenceable by
+     rule number. It does NOT match prompt_search_v2's BR9-BR16 or prompt_1_v5's BR8-BR15. When
+     cross-referencing all five registers, map by rule TEXT, not by rule number.
+  6. CONSEQUENT RENUMBERING OF THE SUBMIT-VALIDATION RULE. Round 4's Constraint 4 correctly
+     noted that BR5 governs the popup and the OK navigation only, not field-level validation on
+     submit. A prior round's read of `address.html` indicated that a validation DOES exist — see
+     Constraint 4(a) — which means those cases are in scope but have no stating rule. They stay
+     "Unmapped (see note)" in this round, with a recommended future BR18. Do not map any
+     submit-validation case to BR10, which is now DATA INTEGRITY.
+
+Because Accessibility and Boundary are now in scope here, this prompt supersedes any separate
+boundary or accessibility round for the Address page. Run one or the other, not both, or the two
+registers will duplicate each other. See Rule 24 before discarding the Round 4 register, Rule 25
+before writing any Expected Result, and Rule 26 before writing anything about the thank-you
+popup.
+
+--------------------------------------------------------------------------------
+
+Role: Act as a QA Test Architect in functional test design for healthcare, medical, and
+e-commerce websites. Analyse the source code and localhost website from a QA perspective and
+generate comprehensive, high-quality test cases based only on the provided context.
+
+Task: Analyse the source code and the locally accessible Address page (reached at
+`http://localhost:5501/address.html` — adjust the actual URL and confirm its filename casing
+against the running app) and generate test cases for that page only, across ALL NINETEEN
+TECHNIQUES NAMED IN SECTION 6 — the original Positive and Negative paths plus the seventeen
+added types.
+
+The Address page can be reached in four ways: (a) as an authenticated user, add one or more
+products from any category (Men, Women, etc.), click the cart icon to reach the Cart page, and
+click the "PLACE ORDER" button; (b) navigate to the Cart page (with or without products) and
+click the ADDRESS link; (c) enter the URL directly as a guest; or (d) enter the URL directly
+while authenticated. Routes (c) and (d) are both permitted by BR2. All four are in scope and are
+distinguished in Section 6 technique 5(b).
+
+Website:
+http://localhost:5501/address.html  (Address page)
+
+NOTE ON FILENAME CASING: this page is referenced with a capital "A" in Section 3's stated link
+targets. A prior round found that `payment.js` requests `otp.html` while the file on disk is
+`otp.html`, which resolves only because the local server's filesystem is case-insensitive.
+Establish the actual on-disk casing of this page's filename and of every casing used to
+reference it, and record any mismatch as a Critical Finding — on a case-sensitive production
+filesystem a mismatch is a 404.
+
+================================================================================
+FEATURE CONTEXT
+================================================================================
+
+1. PAGE URL & ENVIRONMENT
+
+   URL: http://localhost:5501/address.html — Address page
+   Environment: local  |  Domain: no domain specific
+   Persistence: browser `localStorage` only. Read the actual key names and their exact casing
+        from the source before writing any case that depends on them. THIS IS THE CENTRAL
+        QUESTION FOR THIS PAGE. A prior round's read of the codebase indicated that NO key
+        holding address data exists anywhere — that `address.html`'s own script shows the
+        thank-you popup without ever calling `localStorage.setItem` for the address, and that no
+        downstream page reads an address value. Re-verify all of that against the current source
+        rather than taking it on trust. If it holds, then five fields are collected, a thank-you
+        is displayed, and the order proceeds to Payment with no delivery address recorded
+        anywhere — which is the most consequential finding available on this page and must be
+        established before any other case is written. Also establish what this page does with
+        the cart key written upstream: does it read it, write it, or leave it untouched?
+
+2. PAGE SECTIONS VISIBLE ON THE ADDRESS PAGE
+
+   Address page:
+
+     - Three links: BAG, ADDRESS, PAYMENT
+
+     - CONTACT DETAILS section:
+         - Name field — placeholder text: "Name"
+         - Mobile Number field — placeholder text: "Mobile No"
+
+     - ADDRESS DETAILS section:
+         - Pin Code field — placeholder text: "Pin Code"
+         - Address field — placeholder text: "Enter Address"
+         - Locality field — placeholder text: "Locality/Town"
+
+     - Add Address button — after click, a thank-you popup is displayed with an OK button
+
+     - Logo — navigates to the home page
+
+   Verify every placeholder string and every section heading verbatim against the source before
+   use, including capitalisation and any leading or trailing whitespace. A prior round found a
+   placeholder on another checkout page carrying a literal leading space and another carrying a
+   misspelling, so paraphrasing a placeholder from this brief rather than reading it is a known
+   source of error.
+
+3. KEY INTERACTIVE ELEMENTS
+
+   This list is exhaustive for THIS round — do not test any element not named here or in
+   Section 2 above. Section 6 names the techniques each must be tested with.
+
+   - CONTACT DETAILS section:
+       - Name field — placeholder "Name"; accepts any character (per BR3).
+       - Mobile Number field — placeholder "Mobile No"; accepts numbers ONLY (does not accept
+         symbols, alphabets, or alphanumeric values); has up and down spinner arrow buttons
+         (per BR4).
+   - ADDRESS DETAILS section:
+       - Pin Code field — placeholder "Pin Code"; accepts numbers ONLY (does not accept symbols,
+         alphabets, or alphanumeric values); has up and down spinner arrow buttons (per BR4).
+       - Address field — placeholder "Enter Address"; accepts any character (per BR3).
+       - Locality field — placeholder "Locality/Town"; accepts any character (per BR3).
+   - Add Address button — when clicked, a thank-you popup is displayed with an OK button; when
+     OK is clicked, the page navigates to the Payment page (per BR5).
+   - Three links: clicking ADDRESS navigates to (stays on) "http://localhost:5501/address.html";
+     clicking PAYMENT navigates to "http://localhost:5501/payment.html"; clicking BAG navigates
+     to "http://localhost:5501/cart.html".
+   - Logo — clicking it navigates to the home page.
+
+   Also in scope for this round, but ONLY as named in BR7 (persistence) — the Logo AS IT APPEARS
+   ON THIS PAGE. Do not re-test the Top Menu, Sign In/Sign Up buttons, Footer, or the Cart icon.
+   (The Cart icon is excluded because prior rounds' registers documented that no Cart icon
+   renders on the checkout-flow pages, and Section 2 of this round names none.)
+
+   THIS LIST NAMES THE ELEMENTS IN SCOPE. SECTION 6 NAMES THE TECHNIQUES EACH MUST BE TESTED
+   WITH.
+
+4. BUSINESS RULES
+
+   BR1 - Only an authenticated user can add a product to the cart, navigate to the Cart page by
+         clicking the cart icon, and reach the Address page by clicking the "PLACE ORDER" button
+         on the Cart page.
+
+   BR2 - Both a Guest user and an Authenticated user can navigate to the Address page directly
+         by entering "http://localhost:5501/address.html" in the URL bar, can fill in the
+         address details, and can move to the Payment page after clicking the "Add Address"
+         button (via the BR5 popup flow).
+
+   BR3 - The Name field, Address field, and Locality field accept any character (letters,
+         numbers, symbols, and combinations thereof).
+
+   BR4 - The Mobile Number field and the Pin Code field accept numbers ONLY (they do not accept
+         symbols, alphabets, or alphanumeric values). Both fields have up and down spinner arrow
+         buttons: clicking the up arrow increments the current value by 1 (e.g. 356 becomes
+         357), and clicking the down arrow decrements the current value by 1 (e.g. 357 becomes
+         356).
+
+   BR5 - When the Add Address button is clicked, a thank-you popup is displayed with an OK
+         button. When the OK button is clicked, the page navigates to the Payment page
+         "http://localhost:5501/payment.html". BR5 governs the popup's DISPLAY and the OK
+         button's NAVIGATION only. It does NOT govern field-level validation on submit, and it
+         does NOT assert that any address was saved — see Rule 26.
+
+   BR6 - (Carried over from the homepage round — governs Sign-Up field validation.) Not
+         applicable in this round: the Address page contains no Sign Up fields or actions. No
+         test case in this register maps to BR6.
+
+   BR7 - Any element whose Section 2/3 description states it is displayed "on all pages," "after
+         login," "after logout," or otherwise persists across a page or session transition must
+         render identically and correctly in every state named. Within THIS round this covers
+         only the Logo as it appears specifically on the Address page — it does NOT extend to
+         re-testing the Top Menu, Sign In/Sign Up buttons, Footer, Cart icon, or any other
+         element not named in Section 2/3 of this round. This rule also governs cross-browser
+         and incognito consistency for that element.
+
+   BR8 - All named cross-links on the Address page (the BAG, ADDRESS, and PAYMENT links, and the
+         Logo's home-page navigation) must be present and correctly targeted to the URLs stated
+         in Section 3.
+
+   BR9 - (Carried over from the Cart page round — governs valid-coupon discount behavior.) Not
+         applicable in this round: the Address page contains no coupon field, Apply Coupon
+         button, or Price Details. No test case in this register maps to BR9.
+
+   NEW IN v2 — added because eight of the seventeen new techniques had no rule to map to. These
+   continue this page's own numbering from BR9 and align with cart_prompt_V2's and
+   payment_prompt_V2's BR10-BR17 by both number and text.
+
+   BR10 — DATA INTEGRITY. Anything the application persists or derives must be readable back
+          unchanged: every stored field exactly as written, no truncation, no type coercion, no
+          silent loss. On this page the first and most important question this rule asks is
+          whether ANYTHING is persisted at all. Every field the user fills must either land
+          somewhere readable, or the register must prove it does not — and the proof is a
+          before/after diff of every storage key, not the absence of a visible error. Beyond
+          that this governs: what each numeric field's DOM value holds versus what was typed (a
+          `number` input silently discards characters it will not accept); whether a spinner
+          increment or decrement produces the arithmetically correct value from the current
+          value, including from empty; whether the any-character fields retain their input
+          byte-for-byte including leading and trailing whitespace; and whether the cart value
+          written upstream survives this page unchanged.
+
+   BR11 — STATE MACHINE AND CONCURRENT ACCESS. The application must move only through valid
+          state transitions (field empty -> filled -> cleared -> refilled; form incomplete ->
+          Add Address clicked -> blocked -> completed -> resubmitted; popup closed -> open ->
+          OK -> navigated away; guest -> authenticated mid-form), must reach the correct state on
+          re-entry, and must behave predictably when two actors — two tabs, two browsers, or one
+          rapid double-click on Add Address or OK — act at once. RE-ENTRY IS THE CRITICAL
+          TRANSITION HERE: complete the whole flow, reach Payment, then return to this page and
+          establish whether the five fields are pre-filled from what was submitted or are empty
+          again. An empty form on re-entry is the user-facing consequence of the Section 1
+          persistence question and must be tested as its own case.
+
+   BR12 — CLIENT-SIDE SECURITY. This is the only page in the flow that collects personal data,
+          which changes what this rule is for. Test: whether the name, mobile number, pin code,
+          address or locality is written to client storage, a cookie, the console, or a DOM
+          `value` attribute that survives navigation — and record the answer either way, since
+          "nothing is stored" is a privacy positive and a functional defect at the same time;
+          whether the three any-character fields (Name, Address, Locality — the only unfiltered
+          inputs on the page) are ever rendered back unescaped into the thank-you popup or the
+          DOM, which is the reflected-XSS surface and must be probed on each of the three
+          separately; whether the submit validation is client-side only and can be bypassed by
+          editing the DOM or invoking the popup or the onward navigation directly from the
+          console; whether a negative or non-numeric value injected into a numeric field via the
+          console is accepted; whether any failure path leaks a stack trace, path or version; and
+          — EXPLICITLY, because a prior round's register omitted it and it was the only outright
+          coverage miss in that round's gap analysis — whether the page is served over a secure
+          transport, recording the actual URL scheme and any security headers rather than
+          assuming.
+
+   BR13 — RECOVERY AND GRACEFUL DEGRADATION. After a failed action, a blocked resource, a
+          storage failure, a refresh, or a browser-back, the application must return to a usable,
+          correctly-stated state rather than a broken or misleading one. This includes what
+          happens to the five entered values on refresh and on browser-back from the Payment
+          page; what the page renders when reached by the BR2 direct-URL route with no cart data
+          present; what happens when a key this page reads holds a malformed value; what happens
+          on an Add Address click with client storage disabled or full; and whether the popup can
+          be left open across a refresh or a back-navigation in a stale state.
+
+   BR14 — INTERFACE CONTRACT. Every page that reads a stored key must agree with every page that
+          writes it — same key name, same casing, same value shape. This page sits in the middle
+          of the checkout chain: the Cart page writes upstream, the Payment page reads
+          downstream. Establish which keys this page reads, which it writes, and what it leaves
+          alone. THE EXPECTED FINDING HERE IS A MISSING WRITER: if this page collects an address
+          and never persists it, then the contract is broken not by a name or shape mismatch but
+          by an absent producer, and no downstream page can have an address to read. Confirm both
+          halves — that this page writes nothing, and that no downstream page attempts to read
+          anything it would have written. Verify the downstream side against the actual source of
+          those pages, but do not generate test cases for the downstream pages themselves;
+          Constraint 1 still applies.
+
+   BR15 — COMPLIANCE AND PERSONAL DATA. Where the application states a policy or presents a
+          policy document, observed behaviour must match it; where consent is required before
+          collecting or storing personal data, it must be obtained. This page collects a name, a
+          mobile number and a full postal address, which makes it the only page in the flow with
+          a genuine personal-data surface. Test: whether any consent is obtained before those
+          fields are collected or submitted; whether any purpose or retention statement is shown
+          or linked, and whether the link resolves FROM THIS PAGE; whether the fields are marked
+          with `autocomplete` tokens that let a browser store them (which is a data-handling
+          decision, not only an accessibility one); and whether the thank-you popup makes any
+          claim about what was done with the data. Record what is observably true. Do NOT issue a
+          compliance verdict against GDPR, the DPDP Act, or any other standard.
+
+   BR16 — DISCOVERABILITY AND SEO. This page must carry a descriptive, distinct title and the
+          metadata needed for it to be indexed as intended. A checkout address page is a
+          conventional candidate for a `noindex` robots directive — test what directive is
+          actually present, not what ought to be, and record the absence of one as the finding if
+          that is what the source shows. Note also whether the `<title>` is a real title or a
+          leftover default such as "Document", which a prior round found on sibling pages.
+
+   BR17 — ACCESSIBILITY (WCAG 2.1 Level AA), scoped to the elements named in Section 2/3:
+          (a) KEYBOARD OPERABILITY: all five input fields, both spinner arrow pairs, the Add
+              Address button, the popup's OK button, the three navigation links and the Logo must
+              be reachable with Tab in a logical order, show a visible focus indicator, and be
+              operable with Enter/Space/arrow keys as appropriate. A complete fill-all-five ->
+              Add Address -> OK journey must be completable with the keyboard alone. Establish
+              whether the spinner arrows are reachable separately from the field or are driven by
+              the Up/Down arrow keys on the field itself. (WCAG 2.1.1, 2.4.3, 2.4.7)
+          (b) LABELS AND NAMES: each of the five fields must have a programmatically associated
+              label. A placeholder is NOT a label — Section 2 describes all five fields by their
+              placeholder text alone, so if the source shows placeholder-only fields with no
+              `<label>`, `aria-label` or `aria-labelledby`, that is a defect under WCAG
+              1.3.1/3.3.2, and the placeholder's disappearance on focus is the user-facing
+              consequence. The Add Address and OK buttons must each have an accessible name.
+              (WCAG 1.3.1, 3.3.2, 4.1.2)
+          (c) INPUT PURPOSE: the fields must identify their purpose programmatically via the
+              correct `autocomplete` tokens — `name`, `tel`, `postal-code`, `street-address` and
+              `address-level2`. This clause is Level AA and applies unusually well to an address
+              form, which is the canonical example in the specification itself; where the tokens
+              are absent, that absence is the finding. (WCAG 1.3.5)
+          (d) POPUP / MODAL SEMANTICS AND FOCUS MANAGEMENT: the thank-you popup is the only modal
+              in the checkout flow, which makes this the one place these requirements apply.
+              Establish first whether it is a native `alert()` or a DOM element, because the
+              requirements differ. For a DOM popup: it must carry a dialog role and an accessible
+              name, focus must move into it when it opens, focus must be contained while it is
+              open, and focus must return somewhere sensible if it closes without navigating.
+              Note that WCAG 2.1.2 No Keyboard Trap and a modal's required focus containment pull
+              in opposite directions — containment is correct only while the modal is open and
+              dismissible; a popup that cannot be escaped except by navigating onward is a trap.
+              Test whether the popup can be dismissed at all without clicking OK. (WCAG 4.1.2,
+              2.4.3, 2.1.2, 1.3.1)
+          (e) ERROR IDENTIFICATION AND STATUS ANNOUNCEMENT: whatever the submit validation does
+              when a required field is empty must identify which field is at fault, be
+              programmatically associated with that input, and be conveyed to assistive
+              technology when it appears. A validation that silently does nothing, or that is
+              rendered via `alert()` with no field association, must be recorded as tested
+              against these requirements. The popup's own appearance is also a status change and
+              must be announced. (WCAG 3.3.1, 3.3.3, 4.1.3)
+          (f) IMAGES: the Logo and any icon in the popup must have a non-empty, meaningful `alt`
+              attribute or equivalent accessible name. (WCAG 1.1.1)
+          (g) CONTRAST: visible text of the three navigation links, both section headings
+              (CONTACT DETAILS, ADDRESS DETAILS), all five field placeholders and entered values,
+              the Add Address button, the popup's message text and its OK button must meet at
+              least 4.5:1 against their background (3:1 for large-scale text). Include the
+              placeholder text specifically — low-contrast placeholder text is the most common
+              failure on a form like this, and with five placeholder-only fields it is also the
+              most consequential.
+          (h) PAGE TITLE AND STRUCTURE: the page must have a descriptive, distinct `<title>` and
+              a usable heading hierarchy including an `<h1>`. Establish whether CONTACT DETAILS
+              and ADDRESS DETAILS are real headings or styled text, and whether the two field
+              groups are programmatically grouped (a `fieldset`/`legend` or equivalent) or only
+              visually so. (WCAG 2.4.2, 1.3.1)
+
+   Note on submit validation: Round 4's Constraint 4 established that BR5 governs the popup and
+   the OK navigation only, not field-level validation on submit. Any validation the source turns
+   out to implement MUST be tested (per Rule 17), but no Business Rule above governs it. Map
+   those cases as "Unmapped (see note)", list them in the "Unmapped but in-scope behaviors" note,
+   and recommend a future BR18 — NOT BR10, which is now DATA INTEGRITY.
+
+   Usability, Analytics and Localisation cases have NO STATING BUSINESS RULE and must be flagged
+   in the same note per Rule 8, not force-mapped.
+
+5. USER TYPES
+
+   - Guest user (not logged in) — per BR1, cannot add a product to the cart, does not see the
+     cart icon, and cannot reach the Address page via the Cart page's Place Order flow; per BR2,
+     CAN reach the Address page directly by URL, fill in the address details, and proceed to the
+     Payment page via Add Address. A prior round found no login gate in the checkout-flow pages'
+     own scripts — re-verify for this page and record the result as a Critical Finding.
+   - Authenticated user (logged in) — can add products, reach the Cart page via the cart icon,
+     reach the Address page via Place Order (BR1), via the Cart page's ADDRESS link, or directly
+     by URL (BR2), fill in the address details, and proceed to the Payment page.
+   - A SECOND, SEPARATE ACCOUNT is required for the BR11 shared-browser cases.
+   - Account type: not specific.
+   - Browsers: Chrome, Edge, Firefox, Safari, and one private/incognito window.
+   - Tooling: DevTools Application > Local Storage for BR10/BR11/BR12/BR14 cases; DevTools
+     Network for blocked-resource and Analytics cases; DevTools Console for leakage,
+     handler-invocation and injection cases; DevTools Elements for SEO, autocomplete-attribute,
+     popup-semantics and Accessibility cases; a screen reader (NVDA or VoiceOver) for the
+     BR17(b)/(c)/(d)/(e) cases; a contrast checker for BR17(g); two tabs and two browsers for
+     concurrency cases.
+
+6. TEST CASE TECHNIQUES — ALL NINETEEN ARE IN SCOPE
+
+   Every element in Section 2/3 must be tested with every technique below that applies to it.
+   Where a technique does not apply to an element, or the application does not implement the
+   thing the technique probes, RECORD A ZERO-CASE PER RULE 20 — do not invent filler to populate
+   a section.
+
+   READ THIS BEFORE GENERATING. On an application of this size several of these techniques will
+   legitimately produce very few cases, or none. Analytics is the likely zero section, because a
+   local client-only demo has no tracking layer — though note `add_shipping_info` is the
+   conventional event for exactly this page, so its absence is worth recording specifically.
+   Localisation, by contrast, is expected to be the MOST productive it has been on any page in
+   this flow, for a structural reason: BR4 restricts Pin Code to digits only, which means the
+   form cannot accept a UK, Canadian or Dutch postcode at all, and "Pin Code" is itself an
+   Indian-English term. That is a concrete, reproducible internationalisation defect rather than
+   a hypothetical one. Data Integrity, Interface Contract and Client-Side Security are expected
+   to be the highest-value sections, because the central question on this page is whether the
+   data collected goes anywhere. A zero grounded in a named grep is a correct and valuable
+   result. A fabricated case to fill a section is not.
+
+   (1) POSITIVE — the element performing its stated function with valid input in the stated
+       state. Per Constraint 6, each of the three navigation links, each of the three
+       any-character fields, each of the two numeric fields, each spinner arrow on each numeric
+       field, the Add Address popup display, the OK-to-Payment navigation, and the Logo's
+       home-page navigation gets its own positive case.
+
+   (2) NEGATIVE — invalid, missing or malformed input or state. On this page the negative surface
+       is: symbols, alphabets and alphanumeric input rejected by the Mobile Number field and by
+       the Pin Code field (per BR4); the Add Address click with ALL five fields empty; the Add
+       Address click with each individual field empty in turn, which is the only way to establish
+       which fields the validation actually covers; whitespace-only input in a field the
+       validation checks; and the page reached with any key it reads absent or malformed. One
+       case per distinct invalid class, even where two classes produce the same rendered result.
+
+   (3) EQUIVALENCE CLASS — partition each input's value space into classes the code treats
+       identically, then test one representative per class and state the partitions explicitly.
+       Derive the classes from the source's ACTUAL branching and from each input's `type`
+       attribute, not from intuition. The partitionable value spaces on this page are:
+         - Mobile Number and Pin Code input kind: pure numeric | pure symbol | pure alphabetic |
+           alphanumeric (leading digit) | alphanumeric (leading letter) | decimal point | minus
+           sign | exponential notation | empty. Note that a `number` input and a `text` input
+           with a JS filter partition these differently, and that a bare `number` input accepts
+           `.`, `-` and `e` — which would contradict BR4's literal wording. Establish which
+           implementation is used before enumerating, and if the field is a bare `number` input,
+           test those three acceptances as their own classes.
+         - Name, Address and Locality: letters | digits | symbols | mixed | whitespace-only |
+           empty. Per BR3 the first four collapse into ONE accepting class — state that
+           explicitly rather than generating four cases that assert the same thing, but DO state
+           it as a partition so the class is not silently untested. Whitespace-only and empty do
+           NOT collapse into it, because the submit validation may treat them differently.
+         - Add Address submit state: all five filled | all five empty | exactly one field empty,
+           for each of the five fields in turn | whitespace-only in a validated field. The
+           five one-field-empty classes are the important ones and must not be collapsed.
+         - Entry route: BR1 Place Order | Cart page ADDRESS link | direct URL as guest | direct
+           URL as authenticated.
+         - Popup state: not yet shown | shown | dismissed via OK | dismissed by any other means
+           the source permits.
+       Enumerate every valid class as well as every invalid one — a partition with no
+       representative is an untested class.
+
+   (4) BOUNDARY VALUE — apply boundary-value analysis ONLY where a limit is explicitly stated in
+       Section 2/4 or is verifiable in the source (an attribute on an input, a numeric
+       comparison in the JS, a comparator, a guard).
+
+       DO NOT INVENT LIMITS. THIS PROHIBITION IS UNCHANGED FROM ROUND 4 AND IS THE MOST LIKELY
+       PLACE FOR THIS PROMPT TO BE MISUSED. Specifically, DO NOT generate cases for a 10-digit
+       mobile number rule, a 6-digit pin code rule, a leading-digit rule for Indian mobile
+       numbers, or a maximum length for Name, Address or Locality, UNLESS the source code defines
+       that rule. If the source defines none of them, say so in the Rule 20 zero-case statements,
+       naming the attributes and comparisons grepped for. A form that accepts a one-digit mobile
+       number is a finding to record, not a rule to invent.
+
+       The source-verifiable boundaries on this page are expected to be:
+         - each numeric field's `min`, `max`, `step` and `maxlength` attributes IF PRESENT — grep
+           for them; where absent, that absence is itself the boundary finding, because an
+           unbounded numeric input accepts a pin code or mobile number of any magnitude;
+         - the spinner's behaviour at its lower edge: from a value of 1, then 0, click the down
+           arrow — does the value go negative, stop, or clear? Test both numeric fields
+           independently;
+         - the spinner's behaviour on an EMPTY field: click the up arrow with the field empty and
+           record what value results, since this is where an implicit starting value reveals
+           itself;
+         - any `maxlength` on the three any-character fields IF PRESENT, tested at the limit, one
+           character below and one above;
+         - THE SUBMIT VALIDATION'S OWN BOUNDARY, which is the highest-value boundary on this
+           page: whatever emptiness test the source implements, probe its edge with a SINGLE
+           SPACE in each validated field. A `!== ""` or truthiness check passes a single space
+           while a trimmed check does not, so a form that accepts " " as a name, a pin code and an
+           address is both a real defect and a precise, reproducible boundary case.
+       For each such limit generate cases at the limit, one step below, and one step above, where
+       each side is meaningful. Where an element has no source-verifiable limit, generate zero
+       boundary cases for it and say so per Rule 20.
+
+   (5) DECISION TABLE — where two or more conditions combine to determine which outcome fires.
+       Build the truth table from the source's ACTUAL EVALUATION ORDER, then generate one case per
+       reachable combination and mark the unreachable ones. The decision points on this page are:
+         (a) ADD ADDRESS x FIELD-FILL STATE — the most important table in the register. Five
+             binary conditions (Name, Mobile, Pin Code, Address, Locality each filled or empty)
+             give 32 combinations. Establish from the source exactly which fields the validation
+             tests and how they are combined. If it tests fewer than all five, SAY SO AND NAME
+             THE UNTESTED FIELD OR FIELDS EXPLICITLY, because a field that can be left empty
+             while the form still submits is a defect that no other case will surface. Do not
+             generate 32 near-identical cases: generate one per genuinely distinct outcome, plus
+             one per field showing whether leaving that specific field empty blocks submission,
+             and state which combinations collapse.
+         (b) ENTRY ROUTE x USER TYPE — route (BR1 Place Order | Cart ADDRESS link | direct URL)
+             x user (guest | authenticated) -> is the page reachable, does it render completely,
+             and is any field or displayed value different? Mark every unreachable combination
+             and state why. The guest-via-direct-URL row is the one BR2 explicitly permits and
+             the one most likely to expose a page that assumes cart data exists.
+         (c) NUMERIC FIELD x INPUT KIND — field (Mobile Number | Pin Code) x input kind (numeric
+             | symbol | alphabetic | alphanumeric | decimal | minus | exponential) -> accepted,
+             silently filtered, or rejected. State what "rejected" means observably: nothing
+             appears, or something partial appears.
+         (d) SPINNER x CURRENT VALUE — field (Mobile Number | Pin Code) x arrow (up | down) x
+             current value (empty | positive | zero) -> resulting value. This is where BR4's
+             stated increment/decrement semantics meet the input's actual implementation.
+         (e) POPUP x DISMISSAL PATH — popup shown, then dismissed via OK | via Escape | via a
+             click outside | via a close control if one exists -> where does the user end up? BR5
+             defines only the OK path. If any other dismissal path exists, the user has been shown
+             a thank-you and left on the Address page, which is a distinct and untested state. If
+             no other path exists, the popup is a forced navigation and that is the finding.
+
+   (6) STATE TRANSITION — the application's state machine. Derive the states from the actual DOM
+       and any actual persisted values, then test each valid transition, each attempted invalid
+       transition, and re-entry into a state already occupied. The machines here are: field empty
+       -> filled -> cleared -> refilled; form incomplete -> Add Address clicked -> blocked (or
+       not) -> completed -> resubmitted; popup closed -> open -> OK -> navigated to Payment;
+       popup open -> refresh or browser-back (does a stale popup survive?); guest ->
+       authenticated entered mid-form, with the question of whether the five entered values
+       survive; and — the critical one — FLOW COMPLETED -> RETURN TO THIS PAGE, establishing
+       whether the five fields are pre-filled from the submitted address or empty again.
+
+   (7) DATA INTEGRITY — whether what was written is what is read back, and whether derived values
+       stay consistent. Inspect storage and the DOM directly; do not trust the rendered text.
+       Test that an Add Address click writes either nothing or exactly what it claims — snapshot
+       every storage key and cookie before, diff after, and state the result explicitly either
+       way; that each numeric field's DOM `value` after typing equals exactly what was typed, and
+       where it does not, record precisely what is retained; that a spinner increment from a known
+       value produces exactly that value plus one and a decrement exactly minus one, per BR4's own
+       example, and that this holds at multi-digit values rather than only at BR4's three-digit
+       example; that the three any-character fields retain their input byte-for-byte including
+       leading and trailing whitespace and any non-ASCII characters; and that the cart value
+       written upstream is unchanged by this page.
+
+   (8) END-TO-END — multi-step journeys chaining more than one Business Rule in a realistic flow.
+       At least one journey must terminate in a PERSISTED-STATE ASSERTION — inspect every relevant
+       storage key and state its contents — not merely a navigation or a popup, so the journey
+       proves what did and did not land. The canonical journeys are: (i) an authenticated user
+       adds a product, reaches the Cart page, clicks Place Order, fills all five fields, adjusts
+       the Pin Code with the up arrow, clicks Add Address, verifies the popup, clicks OK, arrives
+       at Payment, and the tester then inspects every storage key to confirm what was and was not
+       written; and (ii) a guest reaches the page directly by URL per BR2, completes the same
+       flow, and the tester performs the same inspection. Do not create more than 5.
+
+   (9) CONCURRENCY — two actors on the same state. There is no server tier, so the concurrency
+       surface is client-side: two tabs both on the Address page, both submitting; the same
+       account in two different browsers; the cart emptied in one tab while this page sits open in
+       another; a rapid double-click on Add Address (do two popups appear, or one?); and a rapid
+       double-click on OK. Test whether a double-click produces a double write, a double popup, or
+       a double navigation.
+
+   (10) RECOVERY — returning to a usable state after a failure or an interruption. Test: whether
+        the five entered values survive a page refresh; whether they survive a browser-back from
+        the Payment page and a forward again; what the page renders when reached by direct URL
+        with no cart data present; what happens when a key this page reads holds a malformed
+        value; what happens on an Add Address click with client storage disabled or full; whether
+        a popup left open survives a refresh in a stale state; and whether a blocked image or
+        script leaves the form usable or broken.
+
+   (11) SECURITY — CLIENT-SIDE ONLY, per BR12. Test: whether any of the five collected values
+        reaches localStorage, sessionStorage, a cookie, the console, or a DOM `value` attribute
+        that survives navigation — snapshot and diff, and state the result either way; whether a
+        script payload typed into Name, into Address, and into Locality separately (the three
+        unfiltered fields) is ever rendered back unescaped into the thank-you popup or anywhere in
+        the DOM — this is the page's reflected-XSS surface and each of the three fields needs its
+        own case, because they may reach different sinks; whether the submit validation can be
+        bypassed by editing the DOM, by removing an attribute, or by invoking the popup handler or
+        the onward navigation directly from the console; whether a negative or non-numeric value
+        injected into a numeric field from the console is accepted and carried forward; whether
+        any failure path leaks a stack trace, path or version; and WHETHER THE PAGE IS SERVED OVER
+        A SECURE TRANSPORT — record the actual URL scheme and any security headers rather than
+        assuming, because personal data is being typed into this form and transport was the one
+        outright miss in the Payment round's gap analysis.
+
+        This technique covers the CLIENT ONLY. Do not test a server-side validation, an API, or a
+        database — see DON'T CREATE.
+
+   (12) COMPLIANCE AND PERSONAL DATA — stated policy versus observed behaviour, per BR15. Test
+        whether any consent is obtained before the five personal-data fields are collected or
+        submitted; whether any purpose, retention or third-party statement is shown or linked, and
+        whether that link resolves FROM THIS PAGE; whether the fields carry `autocomplete` tokens
+        that permit a browser to store them; and whether the thank-you popup makes any claim about
+        what was done with the data — see Rule 26. Where no consent mechanism and no statement
+        exist, that absence is the finding. Record observable facts only.
+
+   (13) ANALYTICS — whether any event or tracking call fires on the key actions of this page: page
+        load, field entry, Add Address click, and OK click. Grep the source for `gtag`,
+        `dataLayer`, `analytics`, `fetch`, `sendBeacon` and `XMLHttpRequest`. Report the grep
+        result explicitly: if no tracking layer exists, record a zero-case naming exactly what was
+        searched for, and do not invent events. Note that `add_shipping_info` is the conventional
+        event for this exact step of a checkout, so its absence is worth recording specifically.
+
+   (14) USABILITY — friction and clarity, expressed OBJECTIVELY. Each case must have a verifiable
+        pass condition, not an opinion. Testable here: WHETHER THE THANK-YOU POPUP'S TEXT CLAIMS
+        SOMETHING THE APPLICATION DID NOT DO — quote the literal string and compare it against
+        what the Data Integrity cases established actually happened, per Rule 26; whether the
+        submit validation, if any, names which field is missing or only says that something is
+        wrong; whether any field indicates that it is required before submission is attempted;
+        whether a spinner control is appropriate on a Mobile Number or Pin Code field at all,
+        tested objectively as "the field exposes increment/decrement affordances that no valid
+        edit to a phone number or postcode would use"; whether the mouse scroll wheel over a
+        focused number input silently changes its value, which is a reproducible data-entry hazard
+        specific to this input type; and whether the two section headings distinguish which fields
+        belong to which group by anything other than visual position.
+
+   (15) COMPATIBILITY — the 4 named browsers plus incognito. This now covers two tiers: the BR7
+        persistence element (the Logo) as in the previous round, AND — new in v2 — the form
+        interaction paths in each browser, plus the browser-native behaviour this page depends on:
+        native `<input type="number">` spinner rendering and whether the arrows are displayed at
+        all (they are hidden by default in some browsers and on touch devices), the popup's
+        rendering if it is a native `alert()` versus a DOM element, and `localStorage`
+        availability in a private window. Establish from the source which input `type` each field
+        uses before writing these cases — the entire compatibility surface depends on it.
+
+   (16) LOCALISATION — locale-dependent presentation and input. Grep for `Intl`,
+        `toLocaleString`, `lang=`, and any locale or i18n module. THIS PAGE IS THE MOST PRODUCTIVE
+        IN THE FLOW FOR THIS TECHNIQUE, and for a structural reason rather than a cosmetic one:
+        BR4 restricts Pin Code to digits only, so attempt to enter a UK postcode ("SW1A 1AA"), a
+        Canadian one ("K1A 0B1") and a Dutch one ("1012 AB") and record what the field retains —
+        an alphanumeric postcode cannot be entered at all, which makes the form structurally
+        unable to accept a non-numeric-postcode address. Also test: whether a mobile number with a
+        country-code prefix ("+44 20 7946 0958") can be entered given the numeric-only rule and
+        the `+` character; whether "Pin Code" as a label is comprehensible outside India, and
+        whether any equivalent term is offered; whether the field order (Pin Code before Address
+        before Locality) matches conventional address order in other locales; whether `<html
+        lang=>` is present and correct; text direction; and whether user-visible strings including
+        the popup's message and all five placeholders are hardcoded to one language. Where no
+        locale layer exists, record a zero-case for the i18n module but report the
+        postcode-rejection and hardcoded-string findings as the substance of the section.
+
+   (17) SEO — per BR16. Test this page's `<title>` for presence, descriptiveness and distinctness
+        from every other page, noting specifically whether it is a leftover default such as
+        "Document"; the presence of a meta description, canonical and robots directive, and what
+        the robots directive actually says for a checkout address URL — a conventional `noindex`
+        candidate, so an absent directive is a finding; and the heading hierarchy including
+        whether an `<h1>` exists.
+
+   (18) INTERFACE CONTRACT — the contract between components. There is no server API, so the
+        contract here is the client storage schema, and this page sits mid-chain. Confirm which
+        keys this page reads and their exact names and casing; confirm which it writes, if any;
+        confirm what it leaves untouched; and confirm it handles each value it reads being absent,
+        empty or malformed. The BR2 direct-URL route produces the absent case by design, so it is
+        the ordinary path through this contract rather than an edge case. Per BR14, the expected
+        finding is an ABSENT PRODUCER rather than a mismatch: test for it directly, and test the
+        downstream half too — whether any later page attempts to read an address value that would
+        never exist.
+
+   (19) ACCESSIBILITY — WCAG 2.1 Level AA, per BR17. Each clause is tested per element group where
+        it applies, and the label, input-purpose and error clauses are tested per named field.
+        This page is the largest form in the flow and contains its only modal, which makes it the
+        richest accessibility surface: where the source shows placeholder-only fields with no
+        `<label>`, missing `autocomplete` tokens, a popup with no dialog role or accessible name,
+        focus that never enters or never leaves the popup, a validation with no programmatic
+        association, or a missing `alt`, the Expected Result is the BR17 requirement and the
+        current state is recorded as a defect — not the pass condition.
+
+================================================================================
+CONSTRAINTS
+================================================================================
+
+1. Analyse the source code and the locally accessible Address page only. Do not re-generate test
+   cases for the homepage, Search Results page, Sign In page, Sign Up page, Cart page, or Payment
+   page — those were covered in other rounds. The Cart page's Place Order button and ADDRESS link
+   may appear only as entry steps of an Address page journey, and the Payment page only as the
+   destination of the OK navigation, not as re-tested elements in their own right. Every case must
+   be grounded in what the code actually does.
+
+2. SECTION 2 AND SECTION 3 SCOPE THE ELEMENTS; SECTION 6 SCOPES THE TECHNIQUES. Do not test
+   elements outside Section 2/3. Within those elements, apply every applicable technique in
+   Section 6. A description that names only a happy path does not put the other techniques out of
+   scope for that element. In particular, the previous round's instruction not to test
+   "interaction states, transitions, or UI behaviors not explicitly described" still bars new
+   ELEMENTS and invented behaviours (hover states, mandatory-field asterisks that do not exist,
+   tab-order requirements not derived from BR17(a)), and still bars the invented LIMITS named in
+   technique 4 — but it no longer bars applying a Section 6 technique to a named element. Note
+   specifically that the previous round's exclusion of "close-on-outside-click popup tests" is
+   narrowed rather than lifted: technique 5(e) requires establishing FROM THE SOURCE which
+   dismissal paths exist and testing those, and forbids inventing one that does not.
+
+3. Do not assume hidden functionality or behaviours that cannot be verified from the Address page
+   or its source code.
+
+4. If functionality cannot be verified from the provided context, do not invent scenarios. Record
+   a zero-case per Rule 20 instead. In particular:
+   (a) SUBMIT VALIDATION. Round 4 said not to invent an outcome for an Add Address click with
+       empty or partially-filled fields unless the source defines one. A prior round's read of
+       `address.html` indicated that a validation DOES exist and that it checks FOUR fields for
+       non-emptiness — which, against five collected fields, means one field is not checked.
+       Re-verify this against the current source, quote the condition verbatim, and NAME WHICH
+       FIELDS ARE CHECKED AND WHICH IS NOT. Those cases are then in scope and must be flagged
+       Unmapped per the Section 4 note. Do not carry the four-field claim forward as fact if the
+       source no longer shows it.
+   (b) Verify every placeholder string and both section heading strings verbatim from the source
+       before use, including capitalisation and leading or trailing whitespace.
+   (c) Establish whether the thank-you popup is a native `alert()` or a DOM element, and quote its
+       message text verbatim, before writing any Accessibility, Usability or Decision Table 5(e)
+       case — every one of those partitions differently depending on the answer.
+   (d) Establish each field's actual input `type` from the source before writing any Equivalence
+       Class, Boundary, Data Integrity, Compatibility, Localisation or Accessibility case, since
+       every one of those techniques partitions differently for `number` than for `text`.
+   (e) Establish whether this page carries any login gate of its own, and therefore whether the
+       BR2 guest route behaves as stated, before writing the Decision Table 5(b) rows.
+   (f) Do not invent an outcome for the OK button other than the BR5 navigation, and do not assume
+       the address was saved because the popup said thank you — see Rule 26.
+
+5. EVERY ENUMERATION IN THIS PROMPT IS A FLOOR, NOT A CEILING. Where an element has more distinct
+   cases than a technique's wording names, generate them all.
+
+6. Test each explicitly named element, control, variant, decision-table row, state transition,
+   equivalence class, boundary edge and technique as its own test case — do not consolidate, even
+   where two cases hit the same underlying code path or produce a similarly-shaped result. This
+   applies specifically to:
+     (a) each of the three navigation links (BAG, ADDRESS, PAYMENT) — one click-and-verify test
+         case per link;
+     (b) each of the three any-character fields (Name, Address, Locality) — one
+         accepts-any-character test case per field (per BR3), not one combined case;
+     (c) each of the two numeric-only fields (Mobile Number, Pin Code) — one accepts-numbers
+         positive case per field AND one rejects-non-numeric negative case per field (covering
+         symbols, alphabets, and alphanumeric values as distinct inputs within that case's Test
+         Data), per BR4;
+     (d) the up-arrow increment and the down-arrow decrement as separate test cases, for EACH of
+         the two numeric fields (four spinner cases in total), per BR4's explicit
+         increment/decrement example;
+     (e) the Add Address click -> thank-you popup display, and the OK click -> Payment page
+         navigation, as two separate test cases (per BR5's two distinct checkpoints);
+     (f) the guest-user direct-URL access flow and the authenticated-user direct-URL access flow
+         as two separate test cases (per BR2 naming both user types);
+     (g) the authenticated-user Place Order entry route to the Address page (BR1) as its own test
+         case, distinct from the direct-URL cases and from the Cart-page ADDRESS-link route;
+     (h) each of the five one-field-empty submit combinations from technique 5(a) as its own case;
+     (i) each of the three unfiltered fields probed separately for reflected output per technique
+         11;
+     (j) each reachable row of each decision table in technique 5;
+     (k) each equivalence class in technique 3 and each boundary edge in technique 4;
+     (l) each clause of BR17 (a) through (h), per element group where it applies.
+   The only consolidation permitted is where two inputs are genuinely identical in kind and value
+   space with no distinguishing characteristic named in Section 2/3. Where the SOURCE collapses a
+   decision table's rows into one outcome, state the collapse and generate one case per distinct
+   outcome rather than one per row — that is a source-grounded consolidation, not a shortcut.
+
+7. WHERE THE APPLICATION DOES NOT IMPLEMENT SOMETHING A TECHNIQUE PROBES, THAT ABSENCE IS THE
+   FINDING. Generate the case that proves it and state in the Expected Result both what correct
+   behaviour would be and what the source actually does, instructing the tester to log the actual
+   behaviour as a defect. Never describe missing behaviour as though it worked. This applies with
+   particular force on this page to: an address that is never persisted, a field the validation
+   never checks, an absent `autocomplete` token, an absent field label, a popup with no dialog
+   semantics, an absent `noindex` directive, an absent consent mechanism, and a postcode format
+   the form cannot accept.
+
+================================================================================
+INCLUDE, BUT ONLY WHERE THE ABOVE CONSTRAINTS PERMIT
+================================================================================
+
+- All nineteen techniques in Section 6, applied per element
+- Guest user and authenticated user scenarios
+- All four entry routes named in technique 3
+- Cross-browser, incognito and cache-clear scenarios per BR7 and technique 15
+- Session-timeout and cache-clearing scenarios for the BR7 persistence element
+- State-transition scenarios per technique 6, including the completed-flow re-entry transition
+- Multi-step end-to-end journeys per technique 8, at least one terminating in a persisted-state
+  assertion
+- Up to 2 KEYBOARD-ONLY end-to-end journeys of the form "complete a full named journey using the
+  keyboard alone" (e.g. fill all five fields, adjust the Pin Code with the arrow keys, submit,
+  and dismiss the popup with no pointer), since those chain BR17(a) and BR17(d) with a functional
+  path
+
+================================================================================
+DON'T CREATE THIS FOR NOW
+================================================================================
+
+- SERVER-SIDE security, API and database cases — this application has no server tier, so keep
+  techniques 11, 13 and 18 client-side
+- Real order placement, address verification, or postcode-lookup service behaviour — there is no
+  service to call
+- A compliance VERDICT against GDPR, the DPDP Act, or any other standard. Technique 12 records
+  observable facts.
+- INVENTED LIMITS — no 10-digit mobile rule, no 6-digit pin rule, no maximum length for
+  Name/Address/Locality unless the source code defines the rule. See technique 4.
+- Performance and load-timing scenarios (still excluded, unchanged from the previous round)
+- Viewport, responsive-layout and touch-target scenarios
+- Coupon, quantity-control, product-tile, Remove, or Price Details scenarios (Cart page — covered
+  in a prior round)
+- Card Number, Name On Card, Date or CVV scenarios (Payment page — covered in a prior round)
+- Filter, sort, search, pagination, infinite scroll, or "load more" scenarios (not present on
+  this page)
+- Returning user scenarios (saved or pre-filled addresses) — EXCEPT the technique 6 re-entry case,
+  which tests whether pre-filling happens at all and is in scope precisely because the answer is
+  expected to be no
+- Re-testing of Sign In / Sign Up field validation (BR6 — out of scope this round)
+- Re-testing of the Top Menu, Sign In/Sign Up buttons, Footer, Cart icon, or homepage /
+  search-page / Cart-page / Payment-page elements not named in Section 2/3 of this round
+- Content testing of destination pages — verify only that navigation lands on the stated URL
+- Any case for an element not named in Section 2/3
+
+Prioritise business-critical user journeys. Within that, prioritise techniques 7 (Data
+Integrity), 18 (Interface Contract), 11 (Security) and 19 (Accessibility) — on this page the
+first two answer whether the collected address goes anywhere at all, which is the question the
+whole page exists to serve; the third matters because this is the only page collecting personal
+data and the only one with three unfiltered inputs; and the fourth has more applicable clauses
+here than on any other page, including the flow's only modal.
+
+Include cross-feature, multi-step end-to-end journeys that chain more than one Business Rule in a
+single flow, simulating realistic user behaviour rather than isolated element checks. Do not
+create more than 5 unless the feature context requires more to cover every Business Rule at least
+once.
+
+Avoid true duplicates only. Two test cases are duplicates only if they test the exact same
+element, the exact same input/option, and the exact same expected outcome — not merely because
+they exercise a similar code path. Per Constraint 6, distinct named fields, spinner arrows, links,
+entry routes, submit combinations, decision-table rows, state transitions, equivalence classes,
+boundary edges and techniques are NOT duplicates.
+
+================================================================================
+RULES
+================================================================================
+
+8. BUSINESS RULE MAPPING. Each test case maps to exactly one Business Rule, except End-to-End
+   journey cases, which may list several. A case may only map to a rule whose stated text directly
+   and unambiguously governs the behaviour tested — do not stretch a rule's wording to cover a
+   feature it does not explicitly describe. BR6 and BR9 are carried over for numbering continuity
+   only and MUST HAVE ZERO TEST CASES MAPPED TO THEM in this round — state this explicitly in the
+   summary table with a one-line reason. The submit-validation cases (per the Section 4 note), and
+   all Usability, Analytics and Localisation cases, have no stating rule: flag them in the
+   "Unmapped but in-scope behaviors" note rather than force-mapping or silently dropping them, and
+   recommend a future BR18 for submit validation — NOT BR10. State explicitly in the summary table
+   any rule with zero mapped cases, with a one-line reason.
+
+9. TEST CASE FORMAT. A Markdown table with these ten columns, in this exact order:
+
+   TC ID | Module | Scenario type | Scenario | Precondition | Test Data | Steps | Expected Result | Priority | Business Rule
+
+   - TC ID: sequential, zero-padded, register-wide — "TC-001", "TC-002" ... in the order the
+     sections appear under Rule 12. Do not restart numbering per section and do not use
+     per-module prefixes (no "ADR-01", "FRM-02"). If this round's register REPLACES the Round 4
+     address register, restart at TC-001 and state so. If instead it is APPENDED to the prior Cart
+     page register (which ended at TC-147), continue from TC-148 rather than restarting. EITHER
+     WAY, STATE THE STARTING NUMBER ASSUMED AND WHICH OF THE TWO MODES WAS CHOSEN, and comply with
+     Rule 24.
+   - Module: the Rule 12 section this case belongs to.
+   - Scenario type: THE TECHNIQUE FROM SECTION 6, named exactly — one of: Positive, Negative,
+     Equivalence Class, Boundary (accept), Boundary (reject), Boundary (discrepancy), Decision
+     Table, State Transition, Data Integrity, End-to-End, Concurrency, Recovery, Security,
+     Compliance, Analytics, Usability, Compatibility, Localisation, SEO, Interface Contract,
+     Accessibility. This replaces the previous round's "positive or negative". Boundary cases take
+     one of the three Boundary sub-values so an accept edge, a reject edge and a rule-contradicting
+     edge are distinguishable at a glance.
+   - Scenario: one sentence stating the behaviour under test and why it matters. For a Decision
+     Table case, name the condition combination. For a State Transition case, name the from-state
+     and to-state. For an Equivalence Class case, name the partition. For a Boundary case, name the
+     limit and which side of it.
+   - Precondition: required user type, account type, and the exact application state before step 1
+     — including WHICH ENTRY ROUTE was used to reach the Address page, whether the user is logged
+     in, which of the five fields are already filled and with what, whether the popup is currently
+     shown, the ACTUAL CONTENTS of the relevant storage keys (not merely whether they exist), the
+     starting page and browser, and — where the case involves more than one tab or browser — which
+     is which.
+   - Test Data: the concrete literal values used, each on its own line, so the case can be executed
+     without guessing. Never placeholders like "<a name>" or "<a valid pin code>". Show names,
+     mobile numbers, pin codes, addresses, localities, symbol/alphabet/alphanumeric rejection
+     inputs, script payloads, non-numeric postcodes, expected URLs, and the exact popup message
+     text exactly as it appears in the source, including whitespace.
+   - Steps: 3-8 numbered, executable actions a tester with no prior feature knowledge could follow
+     exactly as written, naming where to verify every non-visual outcome — the DevTools pane, the
+     storage key, the console, the URL bar, the element's attribute (e.g. "Open DevTools >
+     Application > Local Storage and diff every key against the snapshot taken in step 2", "Inspect
+     the Pin Code input's `type` and `autocomplete` attributes in DevTools > Elements").
+   - Expected Result: one or more numbered, objectively verifiable checkpoints, written per Rule 25
+     and, where the popup is involved, per Rule 26. Where the application is expected to fail the
+     check, state the requirement first, then what the source actually does, then instruct the
+     tester to record it as a defect.
+   - Priority: High / Medium / Low by business-critical impact. The numeric-only validation, the
+     Add Address popup flow, the OK-to-Payment navigation, the BR1/BR2 entry routes, and every
+     Security, Data Integrity and Interface Contract case are High; static link-target,
+     placeholder-text, SEO metadata, logo and cosmetic checks are typically Low/Medium.
+   - Business Rule: per Rule 8.
+
+   WORKED EXAMPLE (follow this level of concreteness for every test case):
+
+   | TC ID | Module | Scenario type | Scenario | Precondition | Test Data | Steps | Expected Result | Priority | Business Rule |
+   |---|---|---|---|---|---|---|---|---|---|
+   | TC-001 | Data Integrity | Data Integrity | Verify whether the address collected by this page is persisted anywhere, since the thank-you popup and the onward navigation both imply it was saved | Guest user; reached `address.html` by direct URL per BR2; all five fields empty; DevTools > Application open with every Local Storage key, Session Storage key and cookie recorded as a baseline; Chrome | Name: "Asha Raman"<br>Mobile No: "9876543210"<br>Pin Code: "600001"<br>Enter Address: "12 Anna Salai, Flat 4B"<br>Locality/Town: "Parrys" | 1. Open DevTools > Application and record every Local Storage key, Session Storage key and cookie with its full value as a baseline<br>2. Fill all five fields with the Test Data<br>3. Click "Add Address" and confirm the thank-you popup appears<br>4. Re-inspect Local Storage, Session Storage and Cookies and diff every key against the step 1 baseline<br>5. Click "OK" and, on the Payment page, diff every key again<br>6. Search each stored value for the literal strings "Asha Raman" and "600001" | 1. Correct behaviour: an address the user has been thanked for is recorded somewhere it can be read back for the order<br>2. Record the actual diff from steps 4 and 5 — if no key contains any of the five submitted values, log it as a High-severity defect stating that the address is collected, confirmed to the user, and discarded<br>3. State explicitly which keys changed and which did not, rather than reporting only that nothing was found<br>4. Confirm the cart key written upstream is unchanged | High | BR10 |
+
+10. TEST CASE STANDARDS. Preconditions must state the entry route, the user type, which of the five
+    fields are filled and with what, whether the popup is shown, exact storage contents, and the
+    starting browser. Test Data must be directly executable and must use realistic values for the
+    locale being tested. Steps must name the verification location for every non-visual outcome.
+    Expected Results must be specific, observable and objectively verifiable, expressed as one
+    outcome or as a numbered list of SIMULTANEOUSLY-REQUIRED checkpoints — never using the list to
+    smuggle in unrelated or optional outcomes; every listed checkpoint must be a mandatory
+    pass/fail condition of the same scenario. Every case must be unique per Constraint 6.
+
+11. FOR DECISION TABLE CASES SPECIFICALLY: before the cases, include the decision table itself —
+    conditions as rows, combinations as columns, the resulting action per column, and a marker on
+    any combination the code makes unreachable or collapses into another. Then generate one case
+    per reachable, distinct-outcome column. State the source's evaluation order, since it
+    determines how many of Table 5(a)'s thirty-two field-fill combinations are genuinely distinct
+    and which field or fields the validation omits.
+
+12. GROUP TEST CASES UNDER THESE SECTIONS, in this exact order, using this exact naming:
+
+        Navigation Links (BAG / ADDRESS / PAYMENT)
+        Logo
+        Contact Details (Name & Mobile Number)
+        Address Details (Pin Code, Address & Locality)
+        Numeric Field Spinner Controls (Up/Down Arrows)
+        Add Address & Thank-You Popup
+        Persistence Checks (Logo on Address Page)
+        Guest User Flows
+        Authenticated User Flows
+        Equivalence Classes
+        Boundary — Numeric Field Spinner Limits
+        Boundary — Field Length & Format Limits
+        Boundary — Add Address Validation Condition
+        Decision Tables
+        State Transitions
+        Data Integrity
+        Concurrency
+        Recovery
+        Client-Side Security
+        Compliance & Personal Data
+        Analytics
+        Usability
+        Compatibility
+        Localisation
+        SEO & Discoverability
+        Interface Contract (Checkout Client Storage Schema)
+        Accessibility — Keyboard Navigation & Focus
+        Accessibility — Forms & Labels
+        Accessibility — Input Purpose & Autocomplete
+        Accessibility — Popup / Modal Semantics & Focus Management
+        Accessibility — Error Identification & Status Announcement
+        Accessibility — Images & Alt Text
+        Accessibility — Contrast
+        Accessibility — Page Title & Structure
+        Cross-Feature End-to-End Journeys
+        Keyboard End-to-End Journeys
+
+    Note: "Persistence Checks" remains its own section (distinct from Guest/Authenticated User
+    Flows) because it is the only place BR7 is exercised in this round, and it must not be folded
+    into the element-specific sections above it. "Guest User Flows" and "Authenticated User Flows"
+    contain only cross-cutting session-level checks that are not already a single element's
+    dedicated test (e.g. "guest reaches the Address page directly by URL and can complete the Add
+    Address flow" belongs in Guest User Flows; "Mobile Number field rejects alphabets" belongs in
+    Contact Details).
+
+    A SECTION WITH NOTHING SOURCE-GROUNDED TO TEST STILL APPEARS IN THE SUMMARY TABLE WITH A COUNT
+    OF 0 AND A ONE-LINE REASON. Do not delete the section and do not invent a case to fill it.
+
+13. Do not invent fields, buttons, pages, workflows, or Business Rules beyond BR1-BR17 above.
+
+14. ALL NINETEEN TECHNIQUES IN SECTION 6 ARE IN SCOPE IN THIS ROUND, including Client-Side
+    Security, Boundary Value and Accessibility. This supersedes the previous round's Rule 11, which
+    excluded security and accessibility and confined compatibility to the Logo, and the previous
+    round's "Don't create" exclusion of boundary and accessibility scenarios. STILL EXCLUDED:
+    server-side security, API, database, performance, and invented limits.
+
+15. Generate manually executable UI-level test cases only. Tools assist verification; they do not
+    replace a human-verifiable checkpoint.
+
+16. Do not duplicate scenarios, per Constraint 6's duplicate definition.
+
+17. Ensure every explicitly named element in Section 2 and Section 3 is covered by at least one
+    case in every applicable Section 6 technique, or carries a zero-case statement for that
+    technique. No element outside those sections is covered.
+
+18. Ensure every test case maps to a Business Rule per Rule 8, or appears in the "Unmapped but
+    in-scope behaviors" note.
+
+19. Use clear, concise, and professional QA language.
+
+20. ZERO-CASE STATEMENTS ARE MANDATORY. After the register, list every element-and-technique pair
+    for which zero cases were generated, each with one line stating exactly what was searched for —
+    name the attribute, the function, the grep pattern — and what was found absent or unreachable.
+    A zero count must read as evidence grounded in the source, not as an omission. At minimum, state
+    the grep result for:
+      - `gtag`, `dataLayer`, `analytics`, `fetch`, `sendBeacon`, `XMLHttpRequest` (technique 13);
+      - `Intl`, `toLocaleString`, `i18n`, `locale`, `lang=` (technique 16);
+      - `min`, `max`, `step`, `maxlength`, `pattern` on all five inputs, and any numeric comparison
+        in the address script (technique 4) — this grep result is what licenses or forbids every
+        boundary case in the register, so report it in full;
+      - `type=` on all five inputs, and `autocomplete` (techniques 3, 11, 15, 16, 19);
+      - `aria-`, `<label`, `alt=`, `role=`, `fieldset`, `legend` (technique 19);
+      - `cookie`, `consent` (technique 12);
+      - every `localStorage`/`sessionStorage` call in the address script, with each key name and
+        casing quoted — and, if there are none, state that explicitly, since it is the register's
+        central finding (techniques 7, 11, 18);
+      - the submit-validation condition, quoted verbatim, naming which of the five fields it checks
+        and which it does not (technique 4, technique 5(a));
+      - the popup's implementation (native `alert()` versus DOM element) and its message text,
+        quoted verbatim (techniques 5(e), 14, 19);
+      - the page's URL scheme and any security headers (technique 11);
+      - the on-disk filename casing versus every casing used to reference this page.
+
+21. BEFORE THE TEST CASE TABLE, INCLUDE:
+    (a) a CRITICAL FINDINGS section — numbered, recording every fact established by reading the
+        source that a tester needs first, each with a file and, where possible, line reference, and
+        DISTINGUISHING COMPLIANT FINDINGS FROM DEFECTS. At minimum: whether the address script
+        writes anything to client storage, naming every key or stating plainly that there are none;
+        which keys this page reads and what it renders when they are absent; the exact
+        submit-validation condition quoted verbatim, naming which of the five fields it checks and
+        which it omits; the exact input `type` and every attribute of each of the five fields; the
+        exact placeholder text of all five fields and both section headings; whether the popup is a
+        native `alert()` or a DOM element, its exact message text, whether it carries dialog
+        semantics, and every path by which it can be dismissed; what the OK handler does, quoted;
+        whether this page carries any login gate of its own; whether the three navigation links,
+        the Logo, Add Address and OK are real anchors or buttons with the stated targets; this
+        page's `<title>`, heading structure and robots directive; the on-disk filename casing; the
+        page's URL scheme; and whether any tracking, locale or consent code exists;
+    (b) the DECISION TABLES required by Rule 11, with Table 5(a) showing which field-fill
+        combinations collapse and which field the validation omits;
+    (c) a summary table of case count per Rule 12 section, including every 0-count section with its
+        reason;
+    (d) a summary table of case count per Business Rule BR1-BR17, EXPLICITLY SHOWING 0 FOR BR6 AND
+        BR9 with a one-line note explaining why, plus an "Unmapped" row covering the
+        submit-validation, Usability, Analytics and Localisation cases, plus a total-occurrences
+        row;
+    (e) a summary table of case count per Section 6 technique, showing all nineteen with 0 where
+        applicable — this is the primary coverage artefact for this round;
+    (f) an ELEMENT x TECHNIQUE MATRIX — Section 2/3 elements as rows (each of the three navigation
+        links, the Logo, the Name field, the Mobile Number field, the Pin Code field, the Address
+        field, the Locality field, each numeric field's spinner arrows, the Add Address button, the
+        thank-you popup, and the popup's OK button), the nineteen techniques as columns — holding
+        the covering TC IDs, a zero-case marker, or a dash where the technique does not apply to
+        that element.
+
+22. REPRODUCIBILITY CHECK. After generating the register, verify that every case traces to a named
+    element in Section 2/3 and a technique in Section 6, that every decision-table case traces to a
+    row of a stated table, that every boundary case traces to a limit named in the Rule 20 grep
+    results, that every expected-to-fail case states both the requirement and the observed
+    behaviour, and that no section was padded with a case not grounded in the source. Confirm a
+    second independent run of this prompt against the same context would reproduce the same cases,
+    the same zero-cases and the same defects. Remove any case that fails this check.
+
+23. PRE-OUTPUT COVERAGE SELF-AUDIT. Before finalising, build the element x technique matrix from
+    Rule 21(f) and confirm every applicable cell holds either a TC ID or a zero-case marker. Build a
+    checklist of every element and behaviour explicitly named in Section 2 and Section 3 —
+    including each of the three navigation links and its stated target URL, the Logo's home-page
+    navigation, each of the five input fields with its exact stated placeholder ("Name", "Mobile
+    No", "Pin Code", "Enter Address", "Locality/Town"), the any-character acceptance of
+    Name/Address/Locality per BR3, the numeric-only restriction of Mobile Number/Pin Code per BR4,
+    the up-arrow and down-arrow behaviour on both numeric fields per BR4, the Add Address button's
+    thank-you popup with OK button per BR5, the OK button's navigation to the Payment page per BR5,
+    both BR2 entry-by-URL user types, the BR1 Place Order entry route, the Cart-page ADDRESS-link
+    route, every BR7 persistence claim as it applies to this page, and every clause of BR17 (a)
+    through (h) — and confirm each checklist item has at least one corresponding test case. Where a
+    cell or a checklist item is empty, add the missing case or the missing zero-case statement
+    BEFORE OUTPUT rather than presenting an incomplete register. Do not silently omit a named
+    element or a technique for the sake of brevity.
+
+24. SUPERSESSION CHECK — DO NOT LOSE COVERAGE THE PREVIOUS ROUND HAD. This prompt supersedes the
+    Round 4 address register and any separate boundary or accessibility round for this page.
+    Supersession is a replacement, not an amnesty: anything the Round 4 register asserted that this
+    register does not reproduce becomes genuinely untested, because there is no combined register to
+    fall back on.
+
+    Before output, read the Round 4 address register alongside this one and confirm that every
+    behaviour it asserted is asserted somewhere here — under whatever new technique, section or TC
+    ID. Pay particular attention to the seven Constraint 5 items (a) through (g) that Round 4
+    enumerated explicitly, which are easy to lose when a register is reorganised by technique
+    rather than by element. Where a Round 4 assertion is deliberately dropped, state it and the
+    reason in a short "Coverage carried forward from Round 4" note; where it was dropped by
+    accident, add it back.
+
+    This rule exists because a measured comparison of the Search Results v1 and v2 registers found
+    that the technique-expanded rewrite, despite growing from 75 to 128 cases, silently lost four
+    behaviours the smaller register had covered — including same-facet multi-value selection, which
+    the v2 findings narrative described but no test case exercised. A behaviour named only in a
+    findings narrative is NOT covered. Every finding that implies a testable behaviour must have a
+    test case behind it, or an explicit zero-case statement saying why it does not.
+
+25. ASSERTION, NOT OBSERVATION. Every Expected Result must state the requirement the case is
+    measuring against, not merely instruct the tester to record what happens. "Record the resulting
+    value" is a note-taking instruction, not a pass/fail condition, and a case built that way cannot
+    fail — which means it provides no coverage no matter how well written the steps are.
+
+    Where the correct behaviour is knowable, state it first, then state what the source actually
+    does, then instruct the tester to log the difference as a defect. Where the correct behaviour is
+    genuinely NOT knowable from the available context — a browser-specific behaviour, an unspecified
+    design decision — the case may ask the tester to record the actual result, but it must ALSO
+    state the condition under which the recorded result would constitute a defect, so there is still
+    a pass/fail line.
+
+    This rule exists because a measured comparison of the Payment page register against the master
+    test-case dump found that all three of its partially-covered master requirements failed for
+    exactly this reason: the register exercised a rapid double-click on the submit button and a
+    browser-back after success, but never stated that a submit guard was expected or that a replay
+    should be refused, so the master's requirements went unmet despite the behaviour being
+    exercised. On this page the same trap is waiting at the spinner floor, the double-click on Add
+    Address, the whitespace-only submit boundary, and every popup dismissal path — in each case it
+    is not enough to record what the application does; the case must state what correct behaviour
+    would be.
+
+26. CONFIRM THE CLAIM, NOT THE MESSAGE. Where the application tells the user that something
+    succeeded, a case that verifies only the appearance of the message is not coverage of the claim.
+    The register must separately verify that the thing the message asserts actually happened.
+
+    This page is the clearest instance of that pattern anywhere in the application: BR5 requires
+    only that a thank-you popup is displayed and that OK navigates onward, and both of those can
+    pass while the address the user was thanked for goes nowhere. So:
+
+      - The BR5 popup-display case and the BR5 OK-navigation case verify the mechanics only, and
+        must NOT be worded in a way that implies the address was saved.
+      - At least one Data Integrity case must independently establish whether any submitted value
+        is persisted, by snapshotting every storage key and cookie before submission and diffing
+        after — and must state the result explicitly either way, rather than reporting only that
+        nothing was found.
+      - At least one Usability case must quote the popup's literal message text and compare its
+        claim against what the Data Integrity case established, recording any gap between what the
+        user is told and what occurred as a defect in its own right.
+      - Do not write "the address is saved successfully" in any Expected Result unless a storage
+        diff proves it.
+
+    The same discipline applies to any other success-shaped signal on the page: a navigation that
+    proceeds is evidence that navigation occurred, not that the step it represents completed.
+
+================================================================================
+END OF PROMPT
+================================================================================

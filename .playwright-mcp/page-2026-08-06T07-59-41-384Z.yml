@@ -1,0 +1,107 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - img "logo" [ref=e4] [cursor=pointer]
+    - generic [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]: MEN
+      - generic [ref=e7] [cursor=pointer]: WOMEN
+      - generic [ref=e8] [cursor=pointer]: KIDS
+      - generic [ref=e9] [cursor=pointer]: HOME & LIVING
+    - textbox "Search for products, brands & more" [active] [ref=e11]
+    - generic [ref=e12]:
+      - generic [ref=e13] [cursor=pointer]: Sign In
+      - generic [ref=e14] [cursor=pointer]: Sign Up
+  - generic [ref=e15]:
+    - paragraph [ref=e18]: Invite friends to Styleup's EORS & get up to ₹150 Stylup Cash for every person who visits
+    - button "Invite Now >" [ref=e19] [cursor=pointer]
+  - generic [ref=e20]:
+    - img "home-pic" [ref=e22] [cursor=pointer]
+    - img "offers" [ref=e23] [cursor=pointer]
+    - generic [ref=e24]:
+      - button "<" [ref=e25] [cursor=pointer]
+      - button ">" [ref=e26] [cursor=pointer]
+    - img "must Have" [ref=e27] [cursor=pointer]
+    - generic [ref=e28]:
+      - img [ref=e30] [cursor=pointer]
+      - img [ref=e32] [cursor=pointer]
+      - img [ref=e34] [cursor=pointer]
+      - img [ref=e36] [cursor=pointer]
+      - img [ref=e38] [cursor=pointer]
+      - img [ref=e40] [cursor=pointer]
+      - img [ref=e42] [cursor=pointer]
+      - img [ref=e44] [cursor=pointer]
+      - img [ref=e46] [cursor=pointer]
+      - img [ref=e48] [cursor=pointer]
+    - img "deals" [ref=e49] [cursor=pointer]
+    - generic [ref=e50]:
+      - img [ref=e52] [cursor=pointer]
+      - img [ref=e54] [cursor=pointer]
+      - img [ref=e56] [cursor=pointer]
+      - img [ref=e58] [cursor=pointer]
+      - img [ref=e60] [cursor=pointer]
+      - img [ref=e62] [cursor=pointer]
+      - img [ref=e64] [cursor=pointer]
+      - img [ref=e66] [cursor=pointer]
+    - generic [ref=e67]:
+      - button "<" [ref=e68] [cursor=pointer]
+      - button ">" [ref=e69] [cursor=pointer]
+  - generic [ref=e70]:
+    - table [ref=e72]:
+      - rowgroup [ref=e73]:
+        - row "Online Shopping Useful Links" [ref=e74]:
+          - columnheader "Online Shopping" [ref=e75]
+          - columnheader "Useful Links" [ref=e76]
+      - rowgroup [ref=e77]:
+        - row "Men Contact Us" [ref=e78]:
+          - cell "Men" [ref=e79]
+          - cell "Contact Us" [ref=e80]:
+            - link "Contact Us" [ref=e81] [cursor=pointer]:
+              - /url: http://127.0.0.1:5501/contact-us.html
+        - row "Women Blog" [ref=e82]:
+          - cell "Women" [ref=e83]
+          - cell "Blog" [ref=e84]:
+            - link "Blog" [ref=e85] [cursor=pointer]:
+              - /url: http://127.0.0.1:5501/blog.html
+        - row "Kids About Us" [ref=e86]:
+          - cell "Kids" [ref=e87]
+          - cell "About Us" [ref=e88]:
+            - link "About Us" [ref=e89] [cursor=pointer]:
+              - /url: http://127.0.0.1:5501/about-us.html
+        - row "Home Terms of use" [ref=e90]:
+          - cell "Home" [ref=e91]
+          - cell "Terms of use" [ref=e92]:
+            - link "Terms of use" [ref=e93] [cursor=pointer]:
+              - /url: http://127.0.0.1:5501/terms-of-use.html
+        - row "Living Tracking Order" [ref=e94]:
+          - cell "Living" [ref=e95]
+          - cell "Tracking Order" [ref=e96]
+        - row "Beauty Shipping" [ref=e97]:
+          - cell "Beauty" [ref=e98]
+          - cell "Shipping" [ref=e99]
+        - row "Gift cards Returns" [ref=e100]:
+          - cell "Gift cards" [ref=e101]
+          - cell "Returns" [ref=e102]
+        - row "Cancellation" [ref=e103]:
+          - cell [ref=e104]
+          - cell "Cancellation" [ref=e105]
+        - row "SiteMap" [ref=e106]:
+          - cell [ref=e107]
+          - cell "SiteMap" [ref=e108]
+        - row "Privacy Policy" [ref=e109]:
+          - cell [ref=e110]
+          - cell "Privacy Policy" [ref=e111]
+    - generic [ref=e112]:
+      - heading "ONLINE SHOPPING MADE EASY AT STYLEUP" [level=4] [ref=e113]
+      - paragraph [ref=e114]: If you would like to experience the best of online shopping for men, women and kids in India, you are at the right place. Styleup is the ultimate destination for fashion and lifestyle, being host to a wide array of merchandise including clothing, footwear, accessories, jewellery, personal care products and more. It is time to redefine your style statement with our treasure-trove of trendy items. Our online store brings you the latest in designer products straight out of fashion houses. You can shop online at Styleup from the comfort of your home and get your favourites delivered right to your doorstep.
+      - heading "BEST ONLINE SHOPPING SITE IN INDIA FOR FASHION" [level=4] [ref=e115]
+      - paragraph [ref=e116]: Be it clothing, footwear or accessories, Styleup offers you the ideal combination of fashion and functionality for men, women and kids. You will realise that the sky is the limit when it comes to the types of outfits that you can purchase for different occasions.
+      - list [ref=e117]:
+        - listitem [ref=e118]: Smart mens clothing - At Styleup you will find myriad options in smart formal shirts and trousers, cool T-shirts and jeans, or kurta and pyjama combinations for men. Wear your attitude with printed T-shirts. Create the back-to-campus vibe with varsity T-shirts and distressed jeans. Be it gingham, buffalo, or window-pane style, checked shirts are unbeatably smart. Team them up with chinos, cuffed jeans or cropped trousers for a smart casual look. Opt for a stylish layered look with biker jackets. Head out in cloudy weather with courage in water-resistant jackets. Browse through our innerwear section to find supportive garments which would keep you confident in any outfit.
+        - listitem [ref=e119]: Trendy womens clothing - Online shopping for women at Styleup is a mood-elevating experience. Look hip and stay comfortable with chinos and printed shorts this summer. Look hot on your date dressed in a little black dress, or opt for red dresses for a sassy vibe. Striped dresses and T-shirts represent the classic spirit of nautical fashion. Choose your favourites from among Bardot, off-shoulder, shirt-style, blouson, embroidered and peplum tops, to name a few. Team them up with skinny-fit jeans, skirts or palazzos. Kurtis and jeans make the perfect fusion-wear combination for the cool urbanite. Our grand sarees and lehenga-choli selections are perfect to make an impression at big social events such as weddings. Our salwar-kameez sets, kurtas and Patiala suits make comfortable options for regular wear.
+        - listitem [ref=e120]: Fashionable footwear - While clothes maketh the man, the type of footwear you wear reflects your personality. We bring you an exhaustive lineup of options in casual shoes for men, such as sneakers and loafers. Make a power statement at work dressed in brogues and oxfords. Practice for your marathon with running shoes for men and women. Choose shoes for individual games such as tennis, football, basketball, and the like. Or step into the casual style and comfort offered by sandals, sliders, and flip-flops. Explore our lineup of fashionable footwear for ladies, including pumps, heeled boots, wedge-heels, and pencil-heels. Or enjoy the best of comfort and style with embellished and metallic flats.
+        - listitem [ref=e121]: Stylish accessories - Styleup is one of the best online shopping sites for classy accessories that perfectly complement your outfits. You can select smart analogue or digital watches and match them up with belts and ties. Pick up spacious bags, backpacks, and wallets to store your essentials in style. Whether you prefer minimal jewellery or grand and sparkling pieces, our online jewellery collection offers you many impressive options.
+        - listitem [ref=e122]: Fun and frolic - Online shopping for kids at Styleup is a complete joy. Your little princess is going to love the wide variety of pretty dresses, ballerina shoes, headbands and clips. Delight your son by picking up sports shoes, superhero T-shirts, football jerseys and much more from our online store. Check out our lineup of toys with which you can create memories to cherish.
+      - paragraph [ref=e123]: Styleup is one of the best online shopping sites in India which could help transform your living spaces completely. Add colour and personality to your bedrooms with bed linen and curtains. Use smart tableware to impress your guest. Wall decor, clocks, photo frames and artificial plants are sure to breathe life into any corner of your home.
+      - heading "SHOP ONLINE AT STYLEUP WITH COMPLETE CONVENIENCE" [level=4] [ref=e124]
+      - paragraph [ref=e125]: Another reason why Styleup is the best of all online stores is the complete convenience that it offers. You can view your favourite brands with price options for different products in one place. A user-friendly interface will guide you through your selection process. Comprehensive size charts, product information and high-resolution images help you make the best buying decisions. You also have the freedom to choose your payment options, be it card or cash-on-delivery. The 30-day returns policy gives you more power as a buyer. Additionally, the try-and-buy option for select products takes customer-friendliness to the next level.
+  - link:
+    - /url: http://127.0.0.1:5501/about-us.html

@@ -1,0 +1,33 @@
+[    1273ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://localhost:5501/index.js:108:52)
+    at http://localhost:5501/index.js:2:5
+[   72494ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://localhost:5501/mens.js:412:52)
+    at http://localhost:5501/mens.js:116:5
+[   78407ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://localhost:5501/mens.js:412:52)
+    at http://localhost:5501/mens.js:116:5
+[   79725ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://localhost:5501/index.js:108:52)
+    at http://localhost:5501/index.js:2:5
+[   93384ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://localhost:5501/mens.js:412:52)
+    at http://localhost:5501/mens.js:116:5
+[   97249ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://localhost:5501/index.js:108:52)
+    at http://localhost:5501/index.js:2:5
+[   98821ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:5501/images/1.png:0
+[   98822ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:5501/images/3.png:0
+[   98823ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:5501/images/2.png:0
+[   98823ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:5501/images/5.png:0
+[   99051ms] TypeError: Cannot read properties of null (reading 'addEventListener')
+    at http://127.0.0.1:5501/index.js:16:5
+[   99436ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://127.0.0.1:5501/index.js:108:52)
+    at http://127.0.0.1:5501/index.js:2:5
+[  100950ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://localhost:5501/index.js:108:52)
+    at http://localhost:5501/index.js:2:5
+[  105826ms] TypeError: Cannot set properties of null (setting 'innerText')
+    at cartItems (http://localhost:5501/mens.js:412:52)
+    at http://localhost:5501/mens.js:116:5

@@ -1,0 +1,22 @@
+# Discrepancy Log
+
+Every ⚠ SOURCE DISCREPANCY and newly-discovered finding raised during this conversion, each live-verified against the running application this session — not assumed from the register's own text. Per the protocol, every assertion below still encodes the Phase 1 register's literal Expected Result; none were "fixed" to make the test pass. Each of the 3 discrepancies below is a genuine, reproducible contradiction between the register's Expected Result and actual source/live behavior, causing its test to fail as designed.
+
+| # | TC ID | File:line | Description |
+|---|---|---|---|
+| 1 | TC-047 | `tests/persistence-checks/PersistenceChecks.spec.ts`; source: `search.html:130-147` vs `index.html:65-81` | Phase 1 expects the footer to be identical to the homepage's. Source/live show search.html's footer has zero `<a>` tags anywhere (index.html's has 4 real links) and its 2nd Useful-Links row reads "Terms & Conditions" vs index.html's "Blog" — not identical. Test fails as designed. |
+| 2 | TC-067 | `tests/decision-tables/DecisionTables.spec.ts`; source: `search.js:64-66` | Phase 1 expects a sort-then-filter sequence to show the filtered subset in `searchArr`'s *original* (pre-sort) order. Live-confirmed: `Array.prototype.sort()` mutates `searchArr` in place: a preceding sort permanently reorders it, so the subsequent filter's output reflects the SORTED order, not the original insertion order. Test fails as designed. |
+| 3 | TC-076 | `tests/data-integrity/DataIntegrity.spec.ts`; source: `search.js:61-74` | Phase 1's own Finding 11 calls the filter→sort→brand sequence "compliant" (count always matches tile count). Live-confirmed: `handlesortprice()`/`handlesortname()` call `appendData()` but never `getItemCount()` — after a preceding filter sets `#item-count`, a subsequent sort re-renders the full, filter-discarding tile list but leaves the count label stale at the filter's number. Test fails as designed. |
+
+## Newly-discovered findings (not framed as register contradictions — new information, no existing TC to contradict)
+
+| # | Where documented | Description |
+|---|---|---|
+| 4 | `pages/SearchResultsPage.ts` header; `SOURCE_CODE_INVENTORY.md` | `search.html` loads both `search.js` and `search-algo.js`, both declaring `let searchArr` at top level — a redeclaration `SyntaxError`, live-confirmed, that aborts `search-algo.js` entirely on this page. The navbar's own search bar is dead when used from `search.html` itself. No Phase 1 TC exercises this, so no new test case was added (scope-expansion is prohibited); recorded for visibility only. |
+| 5 | `tests/accessibility-contrast/AccessibilityContrast.spec.ts` | Live-measured, previously unquantified: Add to Cart button text contrasts at 3.51:1 and the Total Items count at 4.00:1, both below the 4.5:1 WCAG normal-text floor. Filter labels, sort dropdown text, product name, breadcrumb, and footer all measure ≥20:1 (compliant). These are direct instances of TC-117/TC-118's own "record any element below 4.5:1 as a FAIL" instruction — not a contradiction of Phase 1, so not counted above as a discrepancy row, but flagged here since they are new, specific numbers the register itself did not have. |
+
+## Live engineering issues fixed during conversion (test-side, not app defects — noted for transparency)
+
+- A genuine race condition in `HomePage.searchAndGoToResults()`: the search-triggered redirect to `search.html` was not awaited past `domcontentloaded`, so `search.js`'s tile rendering (bound to `window`'s `load` event) could still be pending when the very next Playwright command ran — manifesting only on cache-warmed (fast) second navigations. Fixed by waiting for `load` once, inside the page-class method, whenever a redirect actually occurs.
+- Several "fixture-ordering" pitfalls: destructuring two auto-navigating custom fixtures together (e.g. `homePage`+`loginPage`, or `searchResultsPage`+`cartPage`) leaves the test body starting on whichever page's fixture resolved last, not necessarily the one a subsequent `.reload()` assumed. Fixed by calling `.setup()` explicitly wherever a test needs a specific starting page and destructures more than one auto-navigating fixture.
+- `innerText()` on a tile whose product name has leading whitespace collapses that whitespace per normal HTML rendering rules (unlike the underlying JS string used for sorting) — TC-064 identifies its target tile by brand instead of by exact rendered name text.

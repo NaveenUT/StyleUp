@@ -1,0 +1,21 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link [ref=e5] [cursor=pointer]:
+      - /url: index.html
+      - img [ref=e6]
+    - generic [ref=e8]:
+      - link "BAG" [ref=e9] [cursor=pointer]:
+        - /url: cart.html
+      - text: "-------------"
+      - link "ADDRESS" [ref=e10] [cursor=pointer]:
+        - /url: address.html
+      - text: "-------------PAYMENT"
+    - generic [ref=e11]:
+      - img [ref=e13]
+      - generic [ref=e15]: 100% secure
+  - generic [ref=e16]:
+    - spinbutton [ref=e17]
+    - textbox "Name on card" [ref=e18]
+    - textbox [ref=e19]
+    - spinbutton [ref=e20]
+    - button "PAY NOW" [ref=e21]

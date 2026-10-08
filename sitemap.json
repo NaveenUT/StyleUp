@@ -1,0 +1,92 @@
+{
+  "site": "Styleup",
+  "description": "Sitemap of the Styleup e-commerce site as a node/edge graph, derived from actual page links and JS redirects (no framework/router - plain HTML/CSS/JS with localStorage-based auth and cart state).",
+  "nodes": [
+    { "id": "home",        "type": "landing",   "label": "Home",                     "file": "index.html" },
+    { "id": "navbar",      "type": "component", "label": "Shared Navbar",            "file": "navbar.html / navbar.js" },
+    { "id": "mens",        "type": "listing",   "label": "Men's Collection",         "file": "mens.html" },
+    { "id": "womens",      "type": "listing",   "label": "Women's Collection",       "file": "womens.html" },
+    { "id": "kids",        "type": "listing",   "label": "Kids Collection",          "file": "kids.html" },
+    { "id": "home_living", "type": "listing",   "label": "Home & Living",            "file": "home&living.html" },
+    { "id": "search",      "type": "listing",   "label": "Search Results",           "file": "search.html" },
+    { "id": "signin",      "type": "auth",      "label": "Sign In",                  "file": "signin.html" },
+    { "id": "signup",      "type": "auth",      "label": "Sign Up",                  "file": "signup.html" },
+    { "id": "cart",        "type": "cart",      "label": "Shopping Bag",             "file": "cart.html" },
+    { "id": "address",     "type": "checkout",  "label": "Address",                  "file": "address.html" },
+    { "id": "payment",     "type": "checkout",  "label": "Payment",                  "file": "payment.html" },
+    { "id": "otp",         "type": "checkout",  "label": "OTP & Order Confirmation", "file": "otp.html" },
+    { "id": "about",       "type": "static",    "label": "About Us",                 "file": "about-us.html" },
+    { "id": "contact",     "type": "static",    "label": "Contact Us",               "file": "contact-us.html" },
+    { "id": "blog",        "type": "static",    "label": "Blog",                     "file": "blog.html" },
+    { "id": "terms",       "type": "static",    "label": "Terms of Use",             "file": "terms-of-use.html" }
+  ],
+  "edges": [
+    { "source": "home",        "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "mens",        "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "womens",      "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "kids",        "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "home_living", "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "search",      "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "about",       "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "contact",     "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "blog",        "target": "navbar",  "label": "includes shared navbar" },
+    { "source": "terms",       "target": "navbar",  "label": "includes shared navbar" },
+
+    { "source": "navbar", "target": "home",        "label": "logo click" },
+    { "source": "navbar", "target": "mens",        "label": "MEN (requires login)" },
+    { "source": "navbar", "target": "womens",      "label": "WOMEN (requires login)" },
+    { "source": "navbar", "target": "kids",        "label": "KIDS (requires login)" },
+    { "source": "navbar", "target": "home_living", "label": "HOME & LIVING (requires login)" },
+    { "source": "navbar", "target": "search",      "label": "search bar submit" },
+    { "source": "navbar", "target": "cart",        "label": "cart icon (if logged in)" },
+    { "source": "navbar", "target": "signin",      "label": "Sign In / login-required redirect" },
+    { "source": "navbar", "target": "signup",      "label": "Sign Up" },
+
+    { "source": "home", "target": "about",   "label": "footer link" },
+    { "source": "home", "target": "contact", "label": "footer link" },
+    { "source": "home", "target": "blog",    "label": "footer link" },
+    { "source": "home", "target": "terms",   "label": "footer link" },
+
+    { "source": "signin", "target": "home",        "label": "logo / successful login" },
+    { "source": "signin", "target": "mens",        "label": "nav link" },
+    { "source": "signin", "target": "womens",      "label": "nav link" },
+    { "source": "signin", "target": "kids",        "label": "nav link" },
+    { "source": "signin", "target": "home_living", "label": "nav link" },
+    { "source": "signin", "target": "terms",       "label": "Terms of Service link" },
+    { "source": "signin", "target": "signup",      "label": "Sign up link / failed login" },
+
+    { "source": "signup", "target": "home",        "label": "logo" },
+    { "source": "signup", "target": "mens",        "label": "nav link" },
+    { "source": "signup", "target": "womens",      "label": "nav link" },
+    { "source": "signup", "target": "kids",        "label": "nav link" },
+    { "source": "signup", "target": "home_living", "label": "nav link" },
+    { "source": "signup", "target": "terms",       "label": "Terms of Service link" },
+    { "source": "signup", "target": "signin",      "label": "Sign in link / after successful signup" },
+
+    { "source": "cart", "target": "home",    "label": "logo" },
+    { "source": "cart", "target": "address", "label": "Place Order button / breadcrumb" },
+    { "source": "cart", "target": "payment", "label": "breadcrumb" },
+
+    { "source": "address", "target": "home",    "label": "logo" },
+    { "source": "address", "target": "cart",    "label": "breadcrumb" },
+    { "source": "address", "target": "payment", "label": "Add Address confirmed / breadcrumb" },
+
+    { "source": "payment", "target": "home",    "label": "logo" },
+    { "source": "payment", "target": "cart",    "label": "breadcrumb" },
+    { "source": "payment", "target": "address", "label": "breadcrumb" },
+    { "source": "payment", "target": "otp",     "label": "card details validated" },
+
+    { "source": "otp", "target": "home",    "label": "logo / order placed (cart cleared)" },
+    { "source": "otp", "target": "cart",    "label": "breadcrumb" },
+    { "source": "otp", "target": "address", "label": "breadcrumb" },
+    { "source": "otp", "target": "payment", "label": "breadcrumb" }
+  ],
+  "notes": [
+    "No product-detail page exists: listing pages (mens/womens/kids/home_living/search) add items straight to a localStorage cart via an 'Add to Cart' button.",
+    "No dedicated order-confirmation page: success is an alert() in otp.js right before it clears the cart and redirects home.",
+    "navbar.html is an orphaned file - its markup/behavior is duplicated inline on every core page rather than actually included.",
+    "signin/signup/cart/address/payment/otp use a separate hand-coded header instead of the shared navbar, so they lack cart-count/search there.",
+    "Category access (MEN/WOMEN/KIDS/HOME & LIVING) is gated on a loginStatus flag in localStorage; logged-out clicks alert and redirect to signin.",
+    "Real filenames are lowercase (address.html, otp.html, home&living.html) but several links point to differently-cased versions (Address.html, OTP.html, Home&Living.html) - works on Windows/case-insensitive hosting only."
+  ]
+}

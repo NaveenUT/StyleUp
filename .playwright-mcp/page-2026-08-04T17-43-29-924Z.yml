@@ -1,0 +1,41 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link [ref=e5] [cursor=pointer]:
+      - /url: index.html
+      - img [ref=e6]
+    - generic [ref=e8]:
+      - text: BAG-------------
+      - link "ADDRESS" [ref=e9] [cursor=pointer]:
+        - /url: Address.html
+      - text: "------ -------"
+      - link "PAYMENT" [ref=e10] [cursor=pointer]:
+        - /url: payment.html
+    - generic [ref=e11]:
+      - img [ref=e13]
+      - generic [ref=e15]: 100% secure
+  - generic [ref=e16]:
+    - generic [ref=e19]:
+      - img [ref=e20]
+      - generic [ref=e21]:
+        - heading "Product F" [level=3] [ref=e22]
+        - paragraph [ref=e23]: ₹400
+        - generic [ref=e24]:
+          - button "-" [ref=e25] [cursor=pointer]
+          - text: "1"
+          - button "+" [ref=e26]
+        - button "REMOVE" [ref=e27]
+    - generic [ref=e29]:
+      - heading "PRICE DETAILS" [level=2] [ref=e30]
+      - text: "Items : 1"
+      - separator [ref=e31]
+      - text: Total MRP :₹ 400
+      - separator [ref=e32]
+      - generic [ref=e33]:
+        - text: Enter Coupan code
+        - textbox "Enter Coupan Code" [ref=e34]
+        - button "Apply Coupan" [ref=e35]
+      - separator [ref=e36]
+      - text: "Total Amount : ₹ 400"
+      - button "PLACE ORDER" [ref=e37]:
+        - link "PLACE ORDER" [ref=e38] [cursor=pointer]:
+          - /url: Address.html

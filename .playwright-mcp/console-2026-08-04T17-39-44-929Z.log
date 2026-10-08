@@ -1,0 +1,6 @@
+[   63850ms] TypeError: Cannot read properties of undefined (reading 'quantity')
+    at decrease (http://localhost:5501/cart.html:127:25)
+    at HTMLButtonElement.<anonymous> (http://localhost:5501/cart.html:94:1)
+[   84889ms] TypeError: Cannot read properties of undefined (reading 'quantity')
+    at decrease (http://localhost:5501/cart.html:127:25)
+    at HTMLButtonElement.<anonymous> (http://localhost:5501/cart.html:94:1)

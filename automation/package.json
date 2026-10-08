@@ -1,0 +1,21 @@
+{
+  "name": "styleup-homepage-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright TypeScript automation for the Homepage / Sign In / Sign Up all-techniques test case register",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report",
+    "heal": "node heal.mjs",
+    "heal_single_TS": "node ../heal_single_TS.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.5.0"
+  }
+}
