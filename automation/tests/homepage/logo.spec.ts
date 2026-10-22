@@ -15,7 +15,7 @@ import { makeAccount } from '../../test-data/testData';
 // (incl. the Logo's i.postimg.cc src) with a local placeholder, so `.wth`'s width:auto
 // resolves to a stable loaded box immediately — no external-network dependency here.
 
-test.describe.only('Logo', () => {
+test.describe('Logo', () => {
   test('TC-011: Logo click returns home', async ({ navbar, page }) => {
     await clearAllStorage(page);
     await gotoPath(page, '/about-us.html');
