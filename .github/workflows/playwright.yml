@@ -1,0 +1,109 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  homepage-suite:
+    name: Homepage / Sign In / Sign Up / Cart suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: automation
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: automation/package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: npx playwright test
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: homepage-suite-playwright-report
+          path: automation/playwright-report/
+          retention-days: 14
+
+      - name: Upload test results (traces/screenshots)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: homepage-suite-test-results
+          path: automation/test-results/
+          retention-days: 14
+
+  search-suite:
+    name: Search Results Page suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: automation/Search
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: automation/Search/package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run tests
+        # msedge requires a local Edge install and is skipped in CI (see playwright.config.ts) —
+        # run the 3 installable engines explicitly instead of the full project list.
+        run: npx playwright test --project=chromium --project=firefox --project=webkit
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-suite-playwright-report
+          path: automation/Search/playwright-report/
+          retention-days: 14
+
+      - name: Upload Monocart report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-suite-monocart-report
+          path: automation/Search/monocart-report/
+          retention-days: 14
+
+      - name: Upload test results (traces/screenshots)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: search-suite-test-results
+          path: automation/Search/test-results/
+          retention-days: 14
